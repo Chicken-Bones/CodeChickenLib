@@ -14,6 +14,7 @@ import codechicken.lib.vec.BlockCoord;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import cpw.mods.fml.common.network.FMLNetworkHandler;
+import cpw.mods.fml.common.network.IConnectionHandler;
 import cpw.mods.fml.common.network.IPacketHandler;
 import cpw.mods.fml.common.network.ITinyPacketHandler;
 import cpw.mods.fml.common.network.NetworkModHandler;
@@ -28,9 +29,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.INetworkManager;
+import net.minecraft.network.NetLoginHandler;
 import net.minecraft.network.NetServerHandler;
 import net.minecraft.network.packet.NetHandler;
 import net.minecraft.network.packet.Packet;
+import net.minecraft.network.packet.Packet1Login;
 import net.minecraft.network.packet.Packet131MapData;
 import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.server.MinecraftServer;
@@ -143,11 +146,48 @@ public final class PacketCustom implements MCDataInput, MCDataOutput
         public abstract void handle(ICustomPacketHandler handler, PacketCustom packet, Player player);
     }
     
-    private static class ClientPacketHandler extends CustomPacketHandler
+    private static class ClientPacketHandler extends CustomPacketHandler implements IConnectionHandler
     {
+        NetClientHandler netClientHandler;
+
         public ClientPacketHandler(String channel) 
         {
             super(channel);
+            NetworkRegistry.instance().registerConnectionHandler(this);
+        }
+
+        @Override
+        public void connectionOpened(NetHandler netHandler, String server, int port, INetworkManager manager)
+        {
+            netClientHandler = (NetClientHandler) netHandler;
+        }
+
+        @Override
+        public void connectionOpened(NetHandler netHandler, MinecraftServer server, INetworkManager manager)
+        {
+            netClientHandler = (NetClientHandler) netHandler;
+        }
+
+        @Override
+        public void connectionClosed(INetworkManager manager)
+        {
+            netClientHandler = null;
+        }
+
+        @Override
+        public String connectionReceived(NetLoginHandler netHandler, INetworkManager manager)
+        {
+            return null;
+        }
+
+        @Override
+        public void clientLoggedIn(NetHandler clientHandler, INetworkManager manager, Packet1Login login)
+        {
+        }
+
+        @Override
+        public void playerLoggedIn(Player player, NetHandler netHandler, INetworkManager manager)
+        {
         }
 
         @Override
@@ -159,7 +199,7 @@ public final class PacketCustom implements MCDataInput, MCDataOutput
         @Override
         public void handle(ICustomPacketHandler handler, PacketCustom packet, Player player) 
         {
-            ((IClientPacketHandler)handler).handlePacket(packet, Minecraft.getMinecraft().getNetHandler(), Minecraft.getMinecraft());
+            ((IClientPacketHandler)handler).handlePacket(packet, netClientHandler, Minecraft.getMinecraft());
         }
     }
     
