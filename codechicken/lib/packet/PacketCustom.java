@@ -146,48 +146,12 @@ public final class PacketCustom implements MCDataInput, MCDataOutput
         public abstract void handle(ICustomPacketHandler handler, PacketCustom packet, Player player);
     }
     
-    private static class ClientPacketHandler extends CustomPacketHandler implements IConnectionHandler
+    private static class ClientPacketHandler extends CustomPacketHandler
     {
-        NetClientHandler netClientHandler;
-
         public ClientPacketHandler(String channel) 
         {
             super(channel);
-            NetworkRegistry.instance().registerConnectionHandler(this);
-        }
-
-        @Override
-        public void connectionOpened(NetHandler netHandler, String server, int port, INetworkManager manager)
-        {
-            netClientHandler = (NetClientHandler) netHandler;
-        }
-
-        @Override
-        public void connectionOpened(NetHandler netHandler, MinecraftServer server, INetworkManager manager)
-        {
-            netClientHandler = (NetClientHandler) netHandler;
-        }
-
-        @Override
-        public void connectionClosed(INetworkManager manager)
-        {
-            netClientHandler = null;
-        }
-
-        @Override
-        public String connectionReceived(NetLoginHandler netHandler, INetworkManager manager)
-        {
-            return null;
-        }
-
-        @Override
-        public void clientLoggedIn(NetHandler clientHandler, INetworkManager manager, Packet1Login login)
-        {
-        }
-
-        @Override
-        public void playerLoggedIn(Player player, NetHandler netHandler, INetworkManager manager)
-        {
+            NetClientHandlerHelper.register();
         }
 
         @Override
@@ -199,7 +163,7 @@ public final class PacketCustom implements MCDataInput, MCDataOutput
         @Override
         public void handle(ICustomPacketHandler handler, PacketCustom packet, Player player) 
         {
-            ((IClientPacketHandler)handler).handlePacket(packet, netClientHandler, Minecraft.getMinecraft());
+            ((IClientPacketHandler)handler).handlePacket(packet, NetClientHandlerHelper.getNetHandler(), Minecraft.getMinecraft());
         }
     }
     
@@ -291,6 +255,65 @@ public final class PacketCustom implements MCDataInput, MCDataOutput
             {
                 throw new IllegalStateException("Handler is not a client or server handler");
             }
+        }
+    }
+    
+    private static class NetClientHandlerHelper implements IConnectionHandler
+    {
+        NetClientHandler netClientHandler;
+
+        NetClientHandlerHelper()
+        {
+            NetworkRegistry.instance().registerConnectionHandler(this);
+        }
+
+        @Override
+        public void connectionOpened(NetHandler netHandler, String server, int port, INetworkManager manager)
+        {
+            netClientHandler = (NetClientHandler) netHandler;
+        }
+
+        @Override
+        public void connectionOpened(NetHandler netHandler, MinecraftServer server, INetworkManager manager)
+        {
+            netClientHandler = (NetClientHandler) netHandler;
+        }
+
+        @Override
+        public void connectionClosed(INetworkManager manager)
+        {
+            netClientHandler = null;
+        }
+
+        @Override
+        public String connectionReceived(NetLoginHandler netHandler, INetworkManager manager)
+        {
+            return null;
+        }
+
+        @Override
+        public void clientLoggedIn(NetHandler clientHandler, INetworkManager manager, Packet1Login login)
+        {
+        }
+
+        @Override
+        public void playerLoggedIn(Player player, NetHandler netHandler, INetworkManager manager)
+        {
+        }
+
+        static NetClientHandlerHelper instance;
+
+        public static void register()
+        {
+            if (instance == null)
+            {
+                instance = new NetClientHandlerHelper();
+            }
+        }
+
+        public static NetClientHandler getNetHandler()
+        {
+            return instance.netClientHandler;
         }
     }
     
