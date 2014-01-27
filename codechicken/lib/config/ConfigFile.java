@@ -2,26 +2,43 @@ package codechicken.lib.config;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+
+import net.minecraftforge.common.Configuration.UnicodeInputStreamReader;
 
 public class ConfigFile extends ConfigTagParent
 {    
+    public String defaultEncoding = "UTF-8";
+
     public ConfigFile(File file)
     {
-        if(!file.exists())
+        try
         {
-            try
+            if (file.getParentFile() != null)
             {
-                file.createNewFile();
+                file.getParentFile().mkdirs();
             }
-            catch(IOException e)
+
+            if (!file.exists() && !file.createNewFile())
             {
-                throw new RuntimeException(e);
+            	throw new IOException("Failed to create configuration file " + file.getCanonicalPath());
+            }
+            
+            if(!file.canRead()) {
+            	throw new IOException("Failed to read configuration file " + file.getCanonicalPath());
             }
         }
+        catch(IOException e)
+        {
+            throw new RuntimeException(e);
+        }
+        
         this.file = file;
         newlinemode = 2;
         loadConfig();
@@ -31,11 +48,11 @@ public class ConfigFile extends ConfigTagParent
     {
         loading = true;
         BufferedReader reader;
-        try
-        {
-            reader = new BufferedReader(new FileReader(file));
-            
-            while(true)
+        
+		try {
+			reader = new BufferedReader(new UnicodeInputStreamReader(new FileInputStream(file), defaultEncoding));
+
+			while(true)
             {
                 reader.mark(2000);
                 String line = reader.readLine();
@@ -127,12 +144,14 @@ public class ConfigFile extends ConfigTagParent
         PrintWriter writer;
         try
         {
-            writer = new PrintWriter(file);
+            writer = new PrintWriter(file, defaultEncoding);
         }
         catch(FileNotFoundException e)
         {
             throw new RuntimeException(e);
-        }
+        } catch (UnsupportedEncodingException e) {
+        	throw new RuntimeException(e);
+		}
         
         writeComment(writer, 0);
         ConfigFile.writeLine(writer, "", 0);
