@@ -10,7 +10,7 @@ import codechicken.lib.vec.Rectangle4i;
 import codechicken.lib.vec.Transformation;
 import codechicken.lib.vec.Rotation;
 import codechicken.lib.vec.Vector3;
-import net.minecraft.util.Icon;
+import net.minecraft.util.IIcon;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
@@ -48,7 +48,7 @@ public class RenderUtils
         entityItem.hoverStart = 0;
     }
 
-    public static void renderFluidQuad(Vector3 point1, Vector3 point2, Vector3 point3, Vector3 point4, Icon icon, double res)
+    public static void renderFluidQuad(Vector3 point1, Vector3 point2, Vector3 point3, Vector3 point4, IIcon icon, double res)
     {
         renderFluidQuad(point2, vectors[0].set(point4).subtract(point1), vectors[1].set(point1).subtract(point2), icon, res);
     }
@@ -60,7 +60,7 @@ public class RenderUtils
      * @param high The left side of the quad
      * @param res Units per icon
      */
-    public static void renderFluidQuad(Vector3 base, Vector3 wide, Vector3 high, Icon icon, double res)
+    public static void renderFluidQuad(Vector3 base, Vector3 wide, Vector3 high, IIcon icon, double res)
     {
         Tessellator t = Tessellator.instance;
 
@@ -141,7 +141,7 @@ public class RenderUtils
         var2.draw();
     }
     
-    public static void renderFluidCuboid(Cuboid6 bound, Icon tex, double res)
+    public static void renderFluidCuboid(Cuboid6 bound, IIcon tex, double res)
     {
         renderFluidQuad(//bottom
                 new Vector3(bound.min.x, bound.min.y, bound.min.z),
@@ -236,7 +236,7 @@ public class RenderUtils
      * @param stack The fluid stack to render
      * @return The icon of the fluid
      */
-    public static Icon prepareFluidRender(FluidStack stack, int alpha)
+    public static IIcon prepareFluidRender(FluidStack stack, int alpha)
     {
         GL11.glDisable(GL11.GL_LIGHTING);
         GL11.glEnable(GL11.GL_BLEND);
@@ -283,7 +283,7 @@ public class RenderUtils
         else
             bound.max.y = bound.min.y+(bound.max.y-bound.min.y)*density;
         
-        Icon tex = prepareFluidRender(stack, alpha);
+        IIcon tex = prepareFluidRender(stack, alpha);
         CCRenderState.startDrawing(7);
         renderFluidCuboid(bound, tex, res);
         CCRenderState.draw();
@@ -305,7 +305,7 @@ public class RenderUtils
             rect.h = height;
         }
         
-        Icon tex = prepareFluidRender(stack, alpha);
+        IIcon tex = prepareFluidRender(stack, alpha);
         CCRenderState.startDrawing(7);
         renderFluidQuad(
                 new Vector3(rect.x, rect.y+rect.h, 0),
@@ -333,9 +333,9 @@ public class RenderUtils
         boolean is3D = customRenderer != null && customRenderer.shouldUseRenderHelper(ENTITY, item, BLOCK_3D);
 
         boolean larger = false;
-        if (item.getItem() instanceof ItemBlock && RenderBlocks.renderItemIn3d(Block.blocksList[item.itemID].getRenderType()))
+        if (item.getItem() instanceof ItemBlock && RenderBlocks.renderItemIn3d(((ItemBlock) item.getItem()).field_150939_a.getRenderType()))
         {
-            int renderType = Block.blocksList[item.itemID].getRenderType();
+            int renderType = ((ItemBlock) item.getItem()).field_150939_a.getRenderType();
             larger = !(renderType == 1 || renderType == 19 || renderType == 12 || renderType == 2);
         }
         else if(is3D)
@@ -351,7 +351,7 @@ public class RenderUtils
         GL11.glColor4f(1, 1, 1, 1);
         
         entityItem.setEntityItemStack(item);
-        uniformRenderItem.doRenderItem(entityItem, 0, larger ? 0.09 : 0.06, 0, 0, (float)(spin*9/Math.PI));
+        uniformRenderItem.doRender(entityItem, 0, larger ? 0.09 : 0.06, 0, 0, (float)(spin*9/Math.PI));
         
         if(larger)
             GL11.glScaled(d1, d1, d1);

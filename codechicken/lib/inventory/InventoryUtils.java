@@ -1,10 +1,8 @@
 package codechicken.lib.inventory;
 
-import com.google.common.base.Objects;
-
-import codechicken.lib.vec.Vector3;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryLargeChest;
 import net.minecraft.item.Item;
@@ -17,7 +15,10 @@ import net.minecraft.nbt.NBTTagShort;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityChest;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.common.util.ForgeDirection;
+import codechicken.lib.vec.Vector3;
+
+import com.google.common.base.Objects;
 
 public class InventoryUtils
 {
@@ -34,7 +35,7 @@ public class InventoryUtils
             {
                 ItemStack itemstack = item;
                 inv.setInventorySlotContents(slot, null);
-                inv.onInventoryChanged();
+                inv.markDirty();
                 return itemstack;
             }
             ItemStack itemstack1 = item.splitStack(size);
@@ -42,7 +43,7 @@ public class InventoryUtils
             {
                 inv.setInventorySlotContents(slot, null);
             }
-            inv.onInventoryChanged();
+            inv.markDirty();
             return itemstack1;
         }
         return null;
@@ -124,16 +125,16 @@ public class InventoryUtils
     {
         for(int i = 0; i < tagList.tagCount(); i++)
         {
-            NBTTagCompound tag = (NBTTagCompound) tagList.tagAt(i);
+            NBTTagCompound tag = tagList.getCompoundTagAt(i);
             int b = tag.getShort("Slot");
             items[b] = ItemStack.loadItemStackFromNBT(tag);
             if(tag.hasKey("Quantity"))
             {
                 NBTBase qtag = tag.getTag("Quantity");
                 if(qtag instanceof NBTTagInt)
-                    items[b].stackSize = ((NBTTagInt)qtag).data;
+                    items[b].stackSize = ((NBTTagInt)qtag).func_150287_d();
                 else if(qtag instanceof NBTTagShort)
-                    items[b].stackSize = ((NBTTagShort)qtag).data;
+                    items[b].stackSize = ((NBTTagShort)qtag).func_150289_e();
             }
         }
     }
@@ -261,7 +262,7 @@ public class InventoryUtils
         if(stack1 == null || stack2 == null)
             return stack1 == stack2;
 
-        return stack1.itemID == stack2.itemID
+        return stack1.getUnlocalizedName() == stack2.getUnlocalizedName()
                 && stack1.getItemDamage() == stack2.getItemDamage()
                 && stack1.stackSize == stack2.stackSize
                 && Objects.equal(stack1.getTagCompound(), stack2.getTagCompound());
@@ -272,7 +273,7 @@ public class InventoryUtils
      */
     public static IInventory getInventory(World world, int x, int y, int z)
     {
-        TileEntity tile = world.getBlockTileEntity(x, y, z);
+        TileEntity tile = world.getTileEntity(x, y, z);
         if(!(tile instanceof IInventory))
             return null;
         
@@ -287,9 +288,9 @@ public class InventoryUtils
     {
         for(ForgeDirection fside : chestSides)
         {
-            if(chest.worldObj.getBlockId(chest.xCoord+fside.offsetX, chest.yCoord+fside.offsetY, chest.zCoord+fside.offsetZ) == chest.getBlockType().blockID)
+            if(chest.getWorldObj().getBlock(chest.xCoord+fside.offsetX, chest.yCoord+fside.offsetY, chest.zCoord+fside.offsetZ) == chest.getBlockType())
                 return new InventoryLargeChest("container.chestDouble", 
-                        (TileEntityChest)chest.worldObj.getBlockTileEntity(chest.xCoord+fside.offsetX, chest.yCoord+fside.offsetY, chest.zCoord+fside.offsetZ), chest);
+                        (TileEntityChest)chest.getWorldObj().getTileEntity(chest.xCoord+fside.offsetX, chest.yCoord+fside.offsetY, chest.zCoord+fside.offsetZ), chest);
         }
         return chest;
     }
@@ -297,7 +298,7 @@ public class InventoryUtils
     public static boolean canStack(ItemStack stack1, ItemStack stack2)
     {
         return stack1 == null || stack2 == null || 
-                (stack1.itemID == stack2.itemID && 
+                (stack1.getUnlocalizedName() == stack2.getUnlocalizedName() && 
                 (!stack2.getHasSubtypes() || stack2.getItemDamage() == stack1.getItemDamage()) && 
                 ItemStack.areItemStackTagsEqual(stack2, stack1)) && 
                 stack1.isStackable();
@@ -312,7 +313,7 @@ public class InventoryUtils
         Item item = stack.getItem();
         if(item.hasContainerItem())
         {
-            ItemStack container = item.getContainerItemStack(stack);
+            ItemStack container = item.getContainerItem(stack);
             inv.setInventorySlotContents(slot, container);
         }
         else
@@ -339,7 +340,7 @@ public class InventoryUtils
         {
             ItemStack stack = inv.getStackInSlotOnClosing(i);
             if (stack != null)
-                player.dropPlayerItem(stack);
+                player.dropPlayerItemWithRandomChoice(stack, true);
         }
     }
 
@@ -348,6 +349,6 @@ public class InventoryUtils
      */
     public static int actualDamage(ItemStack stack)
     {
-        return Item.diamond.getDamage(stack);
+        return Items.diamond.getDamage(stack);
     }
 }

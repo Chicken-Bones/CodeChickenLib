@@ -4,29 +4,29 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
 
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.ITickHandler;
-import cpw.mods.fml.common.TickType;
-import cpw.mods.fml.common.registry.TickRegistry;
-import cpw.mods.fml.relauncher.Side;
-
 import net.minecraft.client.Minecraft;
+import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.EmptyChunk;
-import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.ForgeSubscribe;
 import net.minecraftforge.event.world.ChunkDataEvent;
 import net.minecraftforge.event.world.ChunkEvent;
-import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.event.world.ChunkWatchEvent.UnWatch;
 import net.minecraftforge.event.world.ChunkWatchEvent.Watch;
+import net.minecraftforge.event.world.WorldEvent;
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent;
+import cpw.mods.fml.common.gameevent.TickEvent.Phase;
+import cpw.mods.fml.common.gameevent.TickEvent.Type;
+import cpw.mods.fml.common.gameevent.TickEvent.WorldTickEvent;
+import cpw.mods.fml.relauncher.Side;
 
 public class WorldExtensionManager
 {    
     public static class WorldExtensionEventHandler
     {
-        @ForgeSubscribe
+        @SubscribeEvent
         public void onChunkDataLoad(ChunkDataEvent.Load event)
         {
             if(!worldMap.containsKey(event.world))
@@ -38,7 +38,7 @@ public class WorldExtensionManager
                 extension.loadChunkData(event.getChunk(), event.getData());
         }
 
-        @ForgeSubscribe
+        @SubscribeEvent
         public void onChunkDataSave(ChunkDataEvent.Save event)
         {
             for(WorldExtension extension : worldMap.get(event.world))
@@ -48,7 +48,7 @@ public class WorldExtensionManager
                 removeChunk(event.world, event.getChunk());
         }
         
-        @ForgeSubscribe
+        @SubscribeEvent
         public void onChunkLoad(ChunkEvent.Load event)
         {
             if(!worldMap.containsKey(event.world))
@@ -60,7 +60,7 @@ public class WorldExtensionManager
                 extension.loadChunk(event.getChunk());
         }
 
-        @ForgeSubscribe
+        @SubscribeEvent
         public void onChunkUnLoad(ChunkEvent.Unload event)
         {
             if(event.getChunk() instanceof EmptyChunk)
@@ -73,7 +73,7 @@ public class WorldExtensionManager
                 removeChunk(event.world, event.getChunk());
         }
 
-        @ForgeSubscribe
+        @SubscribeEvent
         public void onWorldSave(WorldEvent.Save event)
         {
             if(worldMap.containsKey(event.world))
@@ -81,14 +81,14 @@ public class WorldExtensionManager
                     extension.save();
         }
 
-        @ForgeSubscribe
+        @SubscribeEvent
         public void onWorldLoad(WorldEvent.Load event)
         {
             if(!worldMap.containsKey(event.world))
                 WorldExtensionManager.onWorldLoad(event.world);
         }
 
-        @ForgeSubscribe
+        @SubscribeEvent
         public void onWorldUnLoad(WorldEvent.Unload event)
         {
             if(worldMap.containsKey(event.world))//because force closing unloads a world twice
@@ -96,7 +96,7 @@ public class WorldExtensionManager
                     extension.unload();
         }
         
-        @ForgeSubscribe
+        @SubscribeEvent
         public void onChunkWatch(Watch event)
         {            
             Chunk chunk = event.player.worldObj.getChunkFromChunkCoords(event.chunk.chunkXPos, event.chunk.chunkZPos);
@@ -104,7 +104,7 @@ public class WorldExtensionManager
                 extension.watchChunk(chunk, event.player);
         }
 
-        @ForgeSubscribe
+        @SubscribeEvent
         public void onChunkUnWatch(UnWatch event)
         {
             Chunk chunk = event.player.worldObj.getChunkFromChunkCoords(event.chunk.chunkXPos, event.chunk.chunkZPos);
@@ -113,73 +113,18 @@ public class WorldExtensionManager
         }
     }
     
-    public static class WorldExtensionClientTickHandler implements ITickHandler
+    public static class WorldExtensionTickHandler
     {
-        @Override
-        public void tickStart(EnumSet<TickType> type, Object... tickData)
+        @SubscribeEvent
+        public void tick(WorldTickEvent e)
         {
-            if(type.contains(TickType.CLIENT))
+            if(worldMap.containsKey(e.world))
             {
-                World world = Minecraft.getMinecraft().theWorld;
-                if(worldMap.containsKey(world))
-                    preTick(world);
+                if (e.phase == Phase.START)
+                    preTick(e.world);
+                if (e.phase == Phase.END)
+                    postTick(e.world);
             }
-        }
-
-        @Override
-        public void tickEnd(EnumSet<TickType> type, Object... tickData)
-        {
-            if(type.contains(TickType.CLIENT))
-            {
-                World world = Minecraft.getMinecraft().theWorld;
-                if(worldMap.containsKey(world))
-                    postTick(world);
-            }
-        }
-
-        @Override
-        public EnumSet<TickType> ticks()
-        {
-            return EnumSet.of(TickType.CLIENT);
-        }
-
-        @Override
-        public String getLabel()
-        {
-            return "WorldExtenstions";
-        }
-    }
-    
-    public static class WorldExtensionServerTickHandler implements ITickHandler
-    {
-        @Override
-        public void tickStart(EnumSet<TickType> type, Object... tickData)
-        {
-            if(type.contains(TickType.WORLD))
-            {
-                preTick((World)tickData[0]);
-            }
-        }
-
-        @Override
-        public void tickEnd(EnumSet<TickType> type, Object... tickData)
-        {
-            if(type.contains(TickType.WORLD))
-            {
-                postTick((World)tickData[0]);
-            }
-        }
-
-        @Override
-        public EnumSet<TickType> ticks()
-        {
-            return EnumSet.of(TickType.WORLD, TickType.CLIENT);
-        }
-
-        @Override
-        public String getLabel()
-        {
-            return "WorldExtenstions";
         }
     }
     
@@ -199,11 +144,7 @@ public class WorldExtensionManager
     {
         initialised = true;
         MinecraftForge.EVENT_BUS.register(new WorldExtensionEventHandler());
-        TickRegistry.registerTickHandler(new WorldExtensionServerTickHandler(), Side.SERVER);
-        if(FMLCommonHandler.instance().getSide().isClient())
-        {
-            TickRegistry.registerTickHandler(new WorldExtensionClientTickHandler(), Side.CLIENT);
-        }
+        FMLCommonHandler.instance().bus().register(new WorldExtensionTickHandler());
     }
 
     private static HashMap<World, WorldExtension[]> worldMap = new HashMap<World, WorldExtension[]>();

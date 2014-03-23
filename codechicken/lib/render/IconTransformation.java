@@ -1,12 +1,12 @@
 package codechicken.lib.render;
 
-import net.minecraft.util.Icon;
+import net.minecraft.util.IIcon;
 
 public class IconTransformation implements IUVTransformation
 {
-    public Icon icon;
+    public IIcon icon;
     
-    public IconTransformation(Icon icon)
+    public IconTransformation(IIcon icon)
     {
         this.icon = icon;
     }

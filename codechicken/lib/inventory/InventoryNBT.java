@@ -4,6 +4,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.common.util.Constants;
 
 /**
  * IInventory implementation which saves and loads from an NBT tag
@@ -28,7 +29,7 @@ public class InventoryNBT implements IInventory
     private void readNBT()
     {
         if(tag.hasKey("items"))
-            InventoryUtils.readItemStacksFromTag(items, tag.getTagList("items"));
+            InventoryUtils.readItemStacksFromTag(items, tag.getTagList("items", Constants.NBT.TAG_COMPOUND));
     }
     
     @Override
@@ -59,11 +60,11 @@ public class InventoryNBT implements IInventory
     public void setInventorySlotContents(int slot, ItemStack stack)
     {
         items[slot] = stack;
-        onInventoryChanged();
+        markDirty();
     }
 
     @Override
-    public String getInvName()
+    public String getInventoryName()
     {
         return "NBT";
     }
@@ -75,7 +76,7 @@ public class InventoryNBT implements IInventory
     }
 
     @Override
-    public void onInventoryChanged()
+    public void markDirty()
     {
         writeNBT();
     }
@@ -87,12 +88,12 @@ public class InventoryNBT implements IInventory
     }
 
     @Override
-    public void openChest()
+    public void openInventory()
     {
     }
 
     @Override
-    public void closeChest()
+    public void closeInventory()
     {
     }
     
@@ -103,7 +104,7 @@ public class InventoryNBT implements IInventory
     }
     
     @Override
-    public boolean isInvNameLocalized()
+    public boolean hasCustomInventoryName()
     {
         return true;
     }

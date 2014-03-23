@@ -7,27 +7,27 @@ import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.util.IIcon;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.event.TextureStitchEvent;
+import net.minecraftforge.common.MinecraftForge;
+
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
 import codechicken.lib.colour.Colour;
 import codechicken.lib.colour.ColourARGB;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.client.renderer.texture.IconRegister;
-import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.util.Icon;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.client.event.TextureStitchEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.ForgeSubscribe;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 
 public class TextureUtils
 {    
-    public static interface IIconRegister
+    public static interface IconRegister
     {
-        public void registerIcons(IconRegister register);
+        public void registerIcons(IIconRegister register);
         public int atlasIndex();
     }
     
@@ -36,18 +36,18 @@ public class TextureUtils
         MinecraftForge.EVENT_BUS.register(new TextureUtils());
     }
     
-    private static ArrayList<IIconRegister> iconRegistrars = new ArrayList<TextureUtils.IIconRegister>();
+    private static ArrayList<IconRegister> iconRegistrars = new ArrayList<TextureUtils.IconRegister>();
     
-    public static void addIconRegistrar(IIconRegister registrar)
+    public static void addIconRegistrar(IconRegister registrar)
     {
         iconRegistrars.add(registrar);
     }
     
-    @ForgeSubscribe
+    @SubscribeEvent
     public void textureLoad(TextureStitchEvent.Pre event)
     {
-        for(IIconRegister reg : iconRegistrars)
-            if(reg.atlasIndex() == event.map.textureType)
+        for(IconRegister reg : iconRegistrars)
+            if(reg.atlasIndex() == event.map.getTextureType())
                 reg.registerIcons(event.map);
     }
     
@@ -116,7 +116,7 @@ public class TextureUtils
         engine().bindTexture(atlasIndex == 0 ? TextureMap.locationBlocksTexture : TextureMap.locationItemsTexture);
     }
     
-    public static Icon getBlankIcon(int size, IconRegister iconRegister)
+    public static IIcon getBlankIcon(int size, IIconRegister iconRegister)
     {
         TextureMap textureMap = (TextureMap)iconRegister;
         String s = "blank_"+size;
@@ -128,10 +128,10 @@ public class TextureUtils
         return iconRegister.registerIcon(s);
     }
     
-    public static TextureSpecial getTextureSpecial(IconRegister iconRegister, String name)
+    public static TextureSpecial getTextureSpecial(IIconRegister iconRegister, String name)
     {
         TextureMap textureMap = (TextureMap) iconRegister;
-        Icon entry = textureMap.getTextureExtry(name);
+        IIcon entry = textureMap.getTextureExtry(name);
         if(entry != null)
             throw new IllegalStateException("Texture: "+name+" is already registered");
         
@@ -177,7 +177,7 @@ public class TextureUtils
         return false;
     }
 
-    public static Icon safeIcon(Icon icon)
+    public static IIcon safeIcon(IIcon icon)
     {
         if(icon == null)
             icon = ((TextureMap)Minecraft.getMinecraft().getTextureManager().getTexture(TextureMap.locationBlocksTexture)).getAtlasSprite("missingno");

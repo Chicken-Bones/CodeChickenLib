@@ -139,8 +139,7 @@ public class LightMatrix implements IVertexModifier
 
     private void sample(int i, float[] aSamples, int[] bSamples, IBlockAccess a, int x, int y, int z)
     {
-        int bid = a.getBlockId(x, y, z);
-        Block b = Block.blocksList[bid];
+        Block b = a.getBlock(x, y, z);
         if(b == null)
         {
             bSamples[i] = a.getLightBrightnessForSkyBlocks(x, y, z, 0);
@@ -149,7 +148,7 @@ public class LightMatrix implements IVertexModifier
         else
         {
             bSamples[i] = a.getLightBrightnessForSkyBlocks(x, y, z, b.getLightValue(a, x, y, z));
-            aSamples[i] = b.getAmbientOcclusionLightValue(a, x, y, z);
+            aSamples[i] = b.getAmbientOcclusionLightValue();
         }
     }
     

@@ -1,10 +1,11 @@
 package codechicken.lib.inventory;
 
+import static codechicken.lib.inventory.InventoryUtils.actualDamage;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
 import com.google.common.base.Objects;
-import static codechicken.lib.inventory.InventoryUtils.*;
 
 /**
  * Comparable ItemStack with a hashCode implementation.
@@ -19,15 +20,15 @@ public class ItemKey implements Comparable<ItemKey>
         item = k;
     }
 
-    public ItemKey(int id, int damage)
+    public ItemKey(Item item, int damage)
     {
-        this(new ItemStack(id, 1, damage));
+        this(new ItemStack(item, 1, damage));
     }
     
-    public ItemKey(int id, int damage, NBTTagCompound compound)
+    public ItemKey(Item item, int damage, NBTTagCompound compound)
     {
-        this(id, damage);
-        item.setTagCompound(compound);
+        this(item, damage);
+        this.item.setTagCompound(compound);
     }
 
     @Override
@@ -37,7 +38,7 @@ public class ItemKey implements Comparable<ItemKey>
             return false;
         
         ItemKey k = (ItemKey)obj;
-        return item.itemID == k.item.itemID &&
+        return item.getUnlocalizedName() == k.item.getUnlocalizedName() &&
                 actualDamage(item) == actualDamage(k.item) &&
                 Objects.equal(item.stackTagCompound, k.item.stackTagCompound);
     }
@@ -45,7 +46,7 @@ public class ItemKey implements Comparable<ItemKey>
     @Override
     public int hashCode()
     {
-        return hashcode != 0 ? hashcode : (hashcode = Objects.hashCode(item.itemID, actualDamage(item), item.stackTagCompound));
+        return hashcode != 0 ? hashcode : (hashcode = Objects.hashCode(item.getUnlocalizedName(), actualDamage(item), item.stackTagCompound));
     }
     
     public int compareInt(int a, int b)
@@ -56,8 +57,8 @@ public class ItemKey implements Comparable<ItemKey>
     @Override
     public int compareTo(ItemKey o)
     {
-        if(item.itemID != o.item.itemID)
-            return compareInt(item.itemID, o.item.itemID);
+        if(item.getUnlocalizedName() != o.item.getUnlocalizedName())
+            return item.getUnlocalizedName().compareTo(o.item.getUnlocalizedName());
         if(actualDamage(item) != actualDamage(o.item))
             return compareInt(actualDamage(item), actualDamage(o.item));
         return 0;
