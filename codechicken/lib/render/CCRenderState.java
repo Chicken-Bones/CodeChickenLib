@@ -68,7 +68,7 @@ public class CCRenderState
     
     public static void setBrightness(IBlockAccess world, int x, int y, int z)
     {
-        Block block = Block.blocksList[world.getBlockId(x, y, z)];
+        Block block = world.getBlock(x, y, z);
         setBrightness(block == null ? world.getLightBrightnessForSkyBlocks(x, y, z, 0) : block.getMixedBrightnessForBlock(world, x, y, z));
         setColour(0xFFFFFFFF);
     }

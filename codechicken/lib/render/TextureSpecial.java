@@ -2,18 +2,18 @@ package codechicken.lib.render;
 
 import java.util.ArrayList;
 import codechicken.lib.render.SpriteSheetManager.SpriteSheet;
-import codechicken.lib.render.TextureUtils.IIconRegister;
+import codechicken.lib.render.TextureUtils.IconRegister;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import net.minecraft.client.renderer.texture.IconRegister;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.texture.TextureUtil;
-import net.minecraft.client.resources.ResourceManager;
+import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
 
 @SideOnly(Side.CLIENT)
-public class TextureSpecial extends TextureAtlasSprite implements IIconRegister
+public class TextureSpecial extends TextureAtlasSprite implements IconRegister
 {
     //sprite sheet fields
     private int spriteIndex;
@@ -70,12 +70,12 @@ public class TextureSpecial extends TextureAtlasSprite implements IIconRegister
         {
             textureFX.update();
             if(textureFX.changed())
-                TextureUtil.uploadTextureSub(textureFX.imageData, width, height, originX, originY, false, false);
+                TextureUtil.uploadTextureMipmap(new int[][] {textureFX.imageData}, width, height, originX, originY, false, false);
         }
     }
     
     @Override
-    public boolean load(ResourceManager manager, ResourceLocation location)
+    public boolean load(IResourceManager manager, ResourceLocation location)
     {
         if(baseTextures != null)
         {
@@ -136,7 +136,7 @@ public class TextureSpecial extends TextureAtlasSprite implements IIconRegister
     }
     
     @Override
-    public void registerIcons(IconRegister register)
+    public void registerIcons(IIconRegister register)
     {
         if(selfRegister)
             ((TextureMap)register).setTextureEntry(getIconName(), this);

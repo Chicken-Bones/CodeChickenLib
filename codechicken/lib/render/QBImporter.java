@@ -4,8 +4,8 @@ import codechicken.lib.vec.*;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.IconRegister;
-import net.minecraft.util.Icon;
+import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.util.IIcon;
 import net.minecraft.util.ResourceLocation;
 
 import javax.imageio.ImageIO;
@@ -638,7 +638,7 @@ public class QBImporter
             return map.get(key).m;
         }
 
-        public Icon getIcon(String key, IconRegister r, String iconName) {
+        public IIcon getIcon(String key, IIconRegister r, String iconName) {
             int img = map.get(key).img;
             if(icons[img] != null && !iconName.equals(icons[img]))
                 throw new IllegalArgumentException("Attempted to get a previously registered icon by a different name: "+icons[img]+", "+iconName);

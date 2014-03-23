@@ -182,7 +182,7 @@ public class MCOutputStreamWrapper implements MCDataOutput
         }
         else
         {
-            writeShort(stack.itemID);
+            writeString(stack.getItem().getUnlocalizedName());
             if(large)
                 writeInt(stack.stackSize);
             else

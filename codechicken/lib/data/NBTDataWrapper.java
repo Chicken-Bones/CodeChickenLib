@@ -39,70 +39,70 @@ public class NBTDataWrapper implements MCDataInput, MCDataOutput
     @Override
     public NBTDataWrapper writeLong(long l)
     {
-        writeList.appendTag(new NBTTagLong(null, l));
+        writeList.appendTag(new NBTTagLong(l));
         return this;
     }
 
     @Override
     public NBTDataWrapper writeInt(int i)
     {
-        writeList.appendTag(new NBTTagInt(null, i));
+        writeList.appendTag(new NBTTagInt(i));
         return this;
     }
 
     @Override
     public NBTDataWrapper writeShort(int s)
     {
-        writeList.appendTag(new NBTTagShort(null, (short) s));
+        writeList.appendTag(new NBTTagShort((short) s));
         return this;
     }
 
     @Override
     public NBTDataWrapper writeByte(int b)
     {
-        writeList.appendTag(new NBTTagByte(null, (byte) b));
+        writeList.appendTag(new NBTTagByte((byte) b));
         return this;
     }
 
     @Override
     public NBTDataWrapper writeDouble(double d)
     {
-        writeList.appendTag(new NBTTagDouble(null, d));
+        writeList.appendTag(new NBTTagDouble(d));
         return this;
     }
 
     @Override
     public NBTDataWrapper writeFloat(float f)
     {
-        writeList.appendTag(new NBTTagFloat(null, f));
+        writeList.appendTag(new NBTTagFloat(f));
         return this;
     }
 
     @Override
     public NBTDataWrapper writeBoolean(boolean b)
     {
-        writeList.appendTag(new NBTTagByte(null, (byte) (b ? 1 : 0)));
+        writeList.appendTag(new NBTTagByte((byte) (b ? 1 : 0)));
         return this;
     }
 
     @Override
     public NBTDataWrapper writeChar(char c)
     {
-        writeList.appendTag(new NBTTagShort(null, (short)c));
+        writeList.appendTag(new NBTTagShort((short)c));
         return this;
     }
 
     @Override
     public NBTDataWrapper writeByteArray(byte[] array)
     {
-        writeList.appendTag(new NBTTagByteArray(null, array));
+        writeList.appendTag(new NBTTagByteArray(array));
         return this;
     }
 
     @Override
     public NBTDataWrapper writeString(String s)
     {
-        writeList.appendTag(new NBTTagString(null, s));
+        writeList.appendTag(new NBTTagString(s));
         return this;
     }
 
@@ -146,73 +146,73 @@ public class NBTDataWrapper implements MCDataInput, MCDataOutput
     @Override
     public long readLong()
     {
-        return ((NBTTagLong)readTag()).data;
+        return ((NBTTagLong)readTag()).func_150291_c();
     }
 
     @Override
     public int readInt()
     {
-        return ((NBTTagInt)readTag()).data;
+        return ((NBTTagInt)readTag()).func_150287_d();
     }
 
     @Override
     public short readShort()
     {
-        return ((NBTTagShort)readTag()).data;
+        return ((NBTTagShort)readTag()).func_150289_e();
     }
 
     @Override
     public int readUShort()
     {
-        return ((NBTTagShort)readTag()).data & 0xFFFF;
+        return ((NBTTagShort)readTag()).func_150289_e() & 0xFFFF;
     }
 
     @Override
     public byte readByte()
     {
-        return ((NBTTagByte)readTag()).data;
+        return ((NBTTagByte)readTag()).func_150290_f();
     }
 
     @Override
     public int readUByte()
     {
-        return ((NBTTagByte)readTag()).data & 0xFF;
+        return ((NBTTagByte)readTag()).func_150290_f() & 0xFF;
     }
 
     @Override
     public double readDouble()
     {
-        return ((NBTTagDouble)readTag()).data;
+        return ((NBTTagDouble)readTag()).func_150290_f();
     }
 
     @Override
     public float readFloat()
     {
-        return ((NBTTagFloat)readTag()).data;
+        return ((NBTTagFloat)readTag()).func_150288_h();
     }
 
     @Override
     public boolean readBoolean()
     {
-        return ((NBTTagByte)readTag()).data != 0;
+        return ((NBTTagByte)readTag()).func_150290_f() != 0;
     }
 
     @Override
     public char readChar()
     {
-        return (char)((NBTTagShort)readTag()).data;
+        return (char)((NBTTagShort)readTag()).func_150289_e();
     }
 
     @Override
     public byte[] readByteArray(int length)
     {
-        return ((NBTTagByteArray)readTag()).byteArray;
+        return ((NBTTagByteArray)readTag()).func_150292_c();
     }
 
     @Override
     public String readString()
     {
-        return ((NBTTagString)readTag()).data;
+        return ((NBTTagString)readTag()).func_150285_a_();
     }
 
     @Override
@@ -241,6 +241,7 @@ public class NBTDataWrapper implements MCDataInput, MCDataOutput
     
     private NBTBase readTag()
     {
-        return readList.tagAt(readTag++);
+        //TODO fix this
+        return readList.getCompoundTagAt(readTag++);
     }
 }
