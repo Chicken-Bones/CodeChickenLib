@@ -167,6 +167,8 @@ public class WorldExtensionManager
 
     private static void createChunkExtension(World world, Chunk chunk)
     {
+        if(!worldMap.containsKey(world))
+            return;
         WorldExtension[] extensions = worldMap.get(world);
         for(int i = 0; i < extensionIntialisers.size(); i++)
             if(!extensions[i].containsChunk(chunk))
@@ -175,24 +177,27 @@ public class WorldExtensionManager
     
     private static void removeChunk(World world, Chunk chunk)
     {
-        for(WorldExtension extension : worldMap.get(world))
-            extension.remChunk(chunk);
+        if(worldMap.containsKey(world))
+            for(WorldExtension extension : worldMap.get(world))
+                extension.remChunk(chunk);
     }
     
     private static void preTick(World world)
     {
-        for(WorldExtension extension : worldMap.get(world))
-            extension.preTick();
+        if(worldMap.containsKey(world))
+            for(WorldExtension extension : worldMap.get(world))
+                extension.preTick();
     }
     
     private static void postTick(World world)
     {
-        for(WorldExtension extension : worldMap.get(world))
-            extension.postTick();
+        if(worldMap.containsKey(world))
+            for(WorldExtension extension : worldMap.get(world))
+                extension.postTick();
     }
 
     public static WorldExtension getWorldExtension(World world, int instantiatorID)
     {
-        return worldMap.get(world)[instantiatorID];
+        return (worldMap.containsKey(world))?worldMap.get(world)[instantiatorID]:null;
     }
 }
