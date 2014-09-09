@@ -83,6 +83,12 @@ public class WorldExtensionManager
         @SubscribeEvent
         public void onWorldLoad(WorldEvent.Load event)
         {
+        	Logger.getGlobal().warning("load of one of the worlds:"+event.world.getWorldInfo().getWorldName());
+		for(World wworld:DimensionManager.getWorlds())
+		{
+			Logger.getGlobal().warning("World name:"+wworld.getWorldInfo().getWorldName());
+			Logger.getGlobal().warning("Provider:"+wworld.getProviderName());
+		}
             if(!worldMap.containsKey(event.world))
                 WorldExtensionManager.onWorldLoad(event.world);
         }
@@ -127,7 +133,7 @@ public class WorldExtensionManager
         @SubscribeEvent
         public void clientTick(TickEvent.WorldTickEvent event)
         {
-	    Logger.getGlobal().warning("WorldTickEvent:"+event.world.getWorldInfo().getWorldName()+" "+(event.world.getWorldInfo().isInitialized()?"is INITIALIZED":"isnt INITIALIZED"));
+	    
             if(event.phase == TickEvent.Phase.START)
                 preTick(event.world);
             else
