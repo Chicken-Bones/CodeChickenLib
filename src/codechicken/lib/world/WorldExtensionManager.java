@@ -127,6 +127,7 @@ public class WorldExtensionManager
         @SubscribeEvent
         public void clientTick(TickEvent.WorldTickEvent event)
         {
+	    Logger.getGlobal().warning("WorldTickEvent:"+event.world.getWorldInfo().getWorldName()+" "+(event.world.getWorldInfo().isInitialized()?"is INITIALIZED":"isnt INITIALIZED"));
             if(event.phase == TickEvent.Phase.START)
                 preTick(event.world);
             else
@@ -148,14 +149,6 @@ public class WorldExtensionManager
 
     private static void init()
     {
-		Logger.getGlobal().warning("Init of WorldExtensionManager");
-		for(World world:DimensionManager.getWorlds())
-		{
-			Logger.getGlobal().warning("World name:"+world.getWorldInfo().getWorldName());
-			Logger.getGlobal().warning("Is initialize:"+world.getWorldInfo().isInitialized());
-			Logger.getGlobal().warning("Provider:"+world.getProviderName());
-		    Logger.getGlobal().warning("--------------------------------------------");
-		}
         initialised = true;
         MinecraftForge.EVENT_BUS.register(new WorldExtensionEventHandler());
         FMLCommonHandler.instance().bus().register(new WorldExtensionEventHandler());
@@ -165,7 +158,6 @@ public class WorldExtensionManager
     
     private static void onWorldLoad(World world)
     {
-		Logger.getGlobal().warning("World loading:"+world.getWorldInfo().getWorldName());
         WorldExtension[] extensions = new WorldExtension[extensionIntialisers.size()];
         for(int i = 0; i < extensions.length; i++)
             extensions[i] = extensionIntialisers.get(i).createWorldExtension(world);
