@@ -87,7 +87,6 @@ public class WorldExtensionManager
 		for(World wworld:DimensionManager.getWorlds())
 		{
 			Logger.getGlobal().warning("World name:"+wworld.getWorldInfo().getWorldName());
-			Logger.getGlobal().warning("Provider:"+wworld.getProviderName());
 		}
             if(!worldMap.containsKey(event.world))
                 WorldExtensionManager.onWorldLoad(event.world);
