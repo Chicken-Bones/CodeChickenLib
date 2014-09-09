@@ -6,6 +6,7 @@ import cpw.mods.fml.common.gameevent.TickEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.Minecraft;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.EmptyChunk;
@@ -146,6 +147,14 @@ public class WorldExtensionManager
 
     private static void init()
     {
+		Logger.getGlobal().warning("Init of WorldExtensionManager");
+		for(World world:DimensionManager.getWorlds())
+		{
+			Logger.getGlobal().warning("World name:"+world.getWorldInfo().getWorldName());
+			Logger.getGlobal().warning("Is initialize:"+world.getWorldInfo().isInitialized());
+			Logger.getGlobal().warning("Provider:"+world.getProviderName());
+		    Logger.getGlobal().warning("--------------------------------------------");
+		}
         initialised = true;
         MinecraftForge.EVENT_BUS.register(new WorldExtensionEventHandler());
         FMLCommonHandler.instance().bus().register(new WorldExtensionEventHandler());
@@ -155,6 +164,7 @@ public class WorldExtensionManager
     
     private static void onWorldLoad(World world)
     {
+		Logger.getGlobal().warning("World loading:"+world.getWorldInfo().getWorldName());
         WorldExtension[] extensions = new WorldExtension[extensionIntialisers.size()];
         for(int i = 0; i < extensions.length; i++)
             extensions[i] = extensionIntialisers.get(i).createWorldExtension(world);
