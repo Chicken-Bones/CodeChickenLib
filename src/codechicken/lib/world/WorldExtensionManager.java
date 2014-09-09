@@ -6,6 +6,8 @@ import cpw.mods.fml.common.gameevent.TickEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.Minecraft;
+import net.minecraftforge.common.DimensionManager;
+import java.util.logging.Logger;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.EmptyChunk;
@@ -125,6 +127,8 @@ public class WorldExtensionManager
         @SubscribeEvent
         public void clientTick(TickEvent.WorldTickEvent event)
         {
+            if(!worldMap.containsKey(event.world))
+                WorldExtensionManager.onWorldLoad(event.world);
             if(event.phase == TickEvent.Phase.START)
                 preTick(event.world);
             else
@@ -167,6 +171,8 @@ public class WorldExtensionManager
 
     private static void createChunkExtension(World world, Chunk chunk)
     {
+        if(!worldMap.containsKey(world))
+            return;
         WorldExtension[] extensions = worldMap.get(world);
         for(int i = 0; i < extensionIntialisers.size(); i++)
             if(!extensions[i].containsChunk(chunk))
@@ -175,24 +181,27 @@ public class WorldExtensionManager
     
     private static void removeChunk(World world, Chunk chunk)
     {
-        for(WorldExtension extension : worldMap.get(world))
-            extension.remChunk(chunk);
+        if(worldMap.containsKey(world))
+            for(WorldExtension extension : worldMap.get(world))
+                extension.remChunk(chunk);
     }
     
     private static void preTick(World world)
     {
-        for(WorldExtension extension : worldMap.get(world))
-            extension.preTick();
+        if(worldMap.containsKey(world))
+            for(WorldExtension extension : worldMap.get(world))
+                extension.preTick();
     }
     
     private static void postTick(World world)
     {
-        for(WorldExtension extension : worldMap.get(world))
-            extension.postTick();
+        if(worldMap.containsKey(world))
+            for(WorldExtension extension : worldMap.get(world))
+                extension.postTick();
     }
 
     public static WorldExtension getWorldExtension(World world, int instantiatorID)
     {
-        return worldMap.get(world)[instantiatorID];
+        return (worldMap.containsKey(world))?worldMap.get(world)[instantiatorID]:null;
     }
 }
