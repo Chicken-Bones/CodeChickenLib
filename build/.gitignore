@@ -1,0 +1,6 @@
+/bin/
+/eclipse/
+/.settings/
+.project
+.classpath
+*.launch
