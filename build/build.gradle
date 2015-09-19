@@ -1,6 +1,7 @@
 buildscript {
     repositories {
         mavenCentral()
+        jcenter()
         maven {
             name = "forge"
             url = "http://files.minecraftforge.net/maven"
@@ -11,11 +12,12 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.0-SNAPSHOT'
     }
 }
 
-apply plugin: 'forge'
+apply plugin: "maven"
+apply plugin: 'net.minecraftforge.gradle.forge'
 
 group = "codechicken" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "CodeChickenLib"
@@ -36,7 +38,8 @@ println  config.minecraft_version + "-" + config.forge_version
 // Setup the forge minecraft plugin data. Specify the preferred forge/minecraft version here
 minecraft {
     version = config.minecraft_version + "-" + config.forge_version
-    mappings = "snapshot_nodoc_20150404"
+    mappings = "snapshot_nodoc_20150918"
+    runDir = 'eclipse'
 }
 
 sourceSets {
@@ -68,7 +71,7 @@ jar {
     manifest commonManifest
 }
 
-task sourceJar(type: Jar) {
+task sourcesJar(type: Jar) {
     from sourceSets.main.java
     classifier = 'src'
 }
@@ -81,7 +84,7 @@ task devJar(type: Jar) {
 
 // Tell the artifact system about our extra jars
 artifacts {
-	archives sourceJar, devJar
+	archives sourcesJar, devJar
 }
 
 // Configure an upload task. this is setup for uploading to files.minecraftforge.net. There are other examples around

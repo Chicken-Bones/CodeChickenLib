@@ -120,7 +120,7 @@ public class MCDataIO
         if (fluid == null) {
             out.writeShort(-1);
         } else {
-            out.writeShort(fluid.fluidID);
+            out.writeShort(fluid.getFluidID());
             out.writeVarInt(fluid.amount);
             out.writeNBTTagCompound(fluid.tag);
         }
