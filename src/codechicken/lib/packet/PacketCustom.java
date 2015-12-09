@@ -492,7 +492,7 @@ public final class PacketCustom implements MCDataInput, MCDataOutput
     public static void sendToPlayer(Packet packet, EntityPlayer player) {
         if (player == null)
             sendToClients(packet);
-        else
+        else if (((EntityPlayerMP) player).playerNetServerHandler != null)
             ((EntityPlayerMP) player).playerNetServerHandler.sendPacket(packet);
     }
 
